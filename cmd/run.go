@@ -47,8 +47,20 @@ func RunClient() {
 		}
 		switch msgType {
 		case api.MessageTypeReverseString:
-			if e := cli.ReverseString(api.MessageTypeReverseString); e != nil {
+			if e := cli.SendTextReceiveResult(api.MessageTypeReverseString); e != nil {
 				log.Println("reverse string error:", e)
+			}
+		case api.MessageTypeLowerCaseString:
+			if e := cli.SendTextReceiveResult(api.MessageTypeLowerCaseString); e != nil {
+				log.Println("lower case string error:", e)
+			}
+		case api.MessageTypeUpperCaseString:
+			if e := cli.SendTextReceiveResult(api.MessageTypeUpperCaseString); e != nil {
+				log.Println("upper case string error:", e)
+			}
+		case api.MessageTypeCountString:
+			if e := cli.CountString(api.MessageTypeCountString); e != nil {
+				log.Println("count string error:", e)
 			}
 		}
 	}

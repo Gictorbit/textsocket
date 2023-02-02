@@ -65,6 +65,7 @@ func (s *Server) CountString(req *api.PacketBody, conn net.Conn) error {
 		MessageType: req.MessageType,
 		Data:        resByte,
 	}
-	s.log.Println("count string", input, fmt.Sprintf("words:%d , letters:%d", result.Words, result.Letters))
+	s.log.Println("count string:", input)
+	s.log.Println(fmt.Sprintf("words:%d , letters:%d", result.Words, result.Letters))
 	return api.SendPacket(conn, response)
 }

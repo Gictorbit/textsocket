@@ -23,7 +23,8 @@ type CliInterFace interface {
 	Connect() error
 	ReadOption() (api.MessageType, error)
 	Stop()
-	ReverseString(msgType api.MessageType) error
+	SendTextReceiveResult(msgType api.MessageType) error
+	CountString(msgType api.MessageType) error
 }
 
 var (
