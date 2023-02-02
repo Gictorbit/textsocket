@@ -4,7 +4,12 @@
 *.dll
 *.so
 *.dylib
-
+.idea
+.vscode
+.idea/*
+.vscode/*
+bin
+bin/*
 # Test binary, built with `go test -c`
 *.test
 
