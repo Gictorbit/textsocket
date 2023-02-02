@@ -1,7 +1,7 @@
 package server
 
 import (
-	pc "github.com/Gictorbit/textsocket/api"
+	api "github.com/Gictorbit/textsocket/api"
 	"log"
 	"net"
 	"sync"
@@ -17,20 +17,20 @@ type Server struct {
 	log        *log.Logger
 }
 
-type ServerInterface interface {
+type SrvInterface interface {
 	Start()
 	Stop()
-	ReverseString(req *pc.PacketBody, conn net.Conn) error
-	UpperCaseString(req *pc.PacketBody, conn net.Conn) error
-	LowerCaseString(req *pc.PacketBody, conn net.Conn) error
-	CountString(req *pc.PacketBody, conn net.Conn) error
+	ReverseString(req *api.PacketBody, conn net.Conn) error
+	UpperCaseString(req *api.PacketBody, conn net.Conn) error
+	LowerCaseString(req *api.PacketBody, conn net.Conn) error
+	CountString(req *api.PacketBody, conn net.Conn) error
 }
 
 var (
-	_ ServerInterface = &Server{}
+	_ SrvInterface = &Server{}
 )
 
-func NewServer(listenAddr string) ServerInterface {
+func NewServer(listenAddr string) SrvInterface {
 	return &Server{
 		listenAddr: listenAddr,
 		quitChan:   make(chan Empty),
@@ -40,7 +40,7 @@ func NewServer(listenAddr string) ServerInterface {
 }
 
 func (s *Server) Start() {
-	ln, err := net.Listen(pc.SocketType, s.listenAddr)
+	ln, err := net.Listen(api.SocketType, s.listenAddr)
 	if err != nil {
 		s.log.Println("failed to listen: ", err.Error())
 		return
@@ -69,24 +69,24 @@ func (s *Server) acceptConnections() {
 func (s *Server) HandleConnection(conn net.Conn) {
 	defer conn.Close()
 	defer s.wg.Done()
-	packet, err := pc.ReadPacket(conn)
+	packet, err := api.ReadPacket(conn)
 	if err != nil {
 		s.log.Println("error read packet", err)
 	}
 	switch packet.MessageType {
-	case pc.MessageTypeReverseString:
+	case api.MessageTypeReverseString:
 		if e := s.ReverseString(packet, conn); e != nil {
 			s.log.Println("reverse string failed", "Address: "+conn.RemoteAddr().String())
 		}
-	case pc.MessageTypeCountString:
+	case api.MessageTypeCountString:
 		if e := s.CountString(packet, conn); e != nil {
 			s.log.Println("count string failed", "Address: "+conn.RemoteAddr().String())
 		}
-	case pc.MessageTypeUpperCaseString:
+	case api.MessageTypeUpperCaseString:
 		if e := s.UpperCaseString(packet, conn); e != nil {
 			s.log.Println("upper case string failed", "Address: "+conn.RemoteAddr().String())
 		}
-	case pc.MessageTypeLowerCaseString:
+	case api.MessageTypeLowerCaseString:
 		if e := s.LowerCaseString(packet, conn); e != nil {
 			s.log.Println("lower case string failed", "Address: "+conn.RemoteAddr().String())
 		}
