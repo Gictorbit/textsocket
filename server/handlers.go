@@ -2,6 +2,7 @@ package server
 
 import (
 	"encoding/json"
+	"fmt"
 	api "github.com/Gictorbit/textsocket/api"
 	"net"
 	"strings"
@@ -18,6 +19,7 @@ func (s *Server) ReverseString(req *api.PacketBody, conn net.Conn) error {
 		MessageType: req.MessageType,
 		Data:        resultStr,
 	}
+	s.log.Println("string reversed", input, "->", string(resultStr))
 	return api.SendPacket(conn, response)
 }
 
@@ -28,6 +30,7 @@ func (s *Server) UpperCaseString(req *api.PacketBody, conn net.Conn) error {
 		MessageType: req.MessageType,
 		Data:        []byte(strings.ToUpper(input)),
 	}
+	s.log.Println("string upper case", input, "->", strings.ToUpper(input))
 	return api.SendPacket(conn, response)
 }
 
@@ -38,6 +41,7 @@ func (s *Server) LowerCaseString(req *api.PacketBody, conn net.Conn) error {
 		MessageType: req.MessageType,
 		Data:        []byte(strings.ToLower(input)),
 	}
+	s.log.Println("string lower case", input, "->", strings.ToLower(input))
 	return api.SendPacket(conn, response)
 }
 
@@ -61,5 +65,6 @@ func (s *Server) CountString(req *api.PacketBody, conn net.Conn) error {
 		MessageType: req.MessageType,
 		Data:        resByte,
 	}
+	s.log.Println("count string", input, fmt.Sprintf("words:%d , letters:%d", result.Words, result.Letters))
 	return api.SendPacket(conn, response)
 }

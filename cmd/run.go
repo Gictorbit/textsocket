@@ -39,6 +39,17 @@ func RunClient() {
 	if e := cli.Connect(); e != nil {
 		log.Fatal(e)
 	}
-
-	cli.Stop()
+	defer cli.Stop()
+	for {
+		msgType, err := cli.ReadOption()
+		if err != nil {
+			log.Println("read option error")
+		}
+		switch msgType {
+		case api.MessageTypeReverseString:
+			if e := cli.ReverseString(api.MessageTypeReverseString); e != nil {
+				log.Println("reverse string error:", e)
+			}
+		}
+	}
 }

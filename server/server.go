@@ -1,7 +1,9 @@
 package server
 
 import (
+	"errors"
 	api "github.com/Gictorbit/textsocket/api"
+	"io"
 	"log"
 	"net"
 	"sync"
@@ -69,29 +71,33 @@ func (s *Server) acceptConnections() {
 func (s *Server) HandleConnection(conn net.Conn) {
 	defer conn.Close()
 	defer s.wg.Done()
-	packet, err := api.ReadPacket(conn)
-	if err != nil {
-		s.log.Println("error read packet", err)
+	for {
+		packet, err := api.ReadPacket(conn)
+		if err != nil {
+			if !errors.Is(err, io.EOF) {
+				s.log.Println("error read packet", err)
+			}
+			break
+		}
+		switch packet.MessageType {
+		case api.MessageTypeReverseString:
+			if e := s.ReverseString(packet, conn); e != nil {
+				s.log.Println("reverse string failed", e.Error())
+			}
+		case api.MessageTypeCountString:
+			if e := s.CountString(packet, conn); e != nil {
+				s.log.Println("count string failed", e.Error())
+			}
+		case api.MessageTypeUpperCaseString:
+			if e := s.UpperCaseString(packet, conn); e != nil {
+				s.log.Println("upper case string failed", e.Error())
+			}
+		case api.MessageTypeLowerCaseString:
+			if e := s.LowerCaseString(packet, conn); e != nil {
+				s.log.Println("lower case string failed", e.Error())
+			}
+		}
 	}
-	switch packet.MessageType {
-	case api.MessageTypeReverseString:
-		if e := s.ReverseString(packet, conn); e != nil {
-			s.log.Println("reverse string failed", "Address: "+conn.RemoteAddr().String())
-		}
-	case api.MessageTypeCountString:
-		if e := s.CountString(packet, conn); e != nil {
-			s.log.Println("count string failed", "Address: "+conn.RemoteAddr().String())
-		}
-	case api.MessageTypeUpperCaseString:
-		if e := s.UpperCaseString(packet, conn); e != nil {
-			s.log.Println("upper case string failed", "Address: "+conn.RemoteAddr().String())
-		}
-	case api.MessageTypeLowerCaseString:
-		if e := s.LowerCaseString(packet, conn); e != nil {
-			s.log.Println("lower case string failed", "Address: "+conn.RemoteAddr().String())
-		}
-	}
-
 }
 
 func (s *Server) Stop() {

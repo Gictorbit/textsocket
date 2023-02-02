@@ -2,7 +2,6 @@ package api
 
 import (
 	"errors"
-	"io"
 	"net"
 )
 
@@ -26,6 +25,13 @@ const (
 	MessageTypeCountString     MessageType = 4
 )
 
+var MessageTypes = map[string]MessageType{
+	"Reverse String":          MessageTypeReverseString,
+	"Upper case string":       MessageTypeUpperCaseString,
+	"Lower case string":       MessageTypeLowerCaseString,
+	"Count letters and words": MessageTypeCountString,
+}
+
 type PacketBody struct {
 	MessageType MessageType
 	Data        []byte
@@ -34,7 +40,7 @@ type PacketBody struct {
 func ReadPacket(conn net.Conn) (*PacketBody, error) {
 	buf := make([]byte, PacketMaxByteLength)
 	n, err := conn.Read(buf)
-	if err != nil && !errors.Is(err, io.EOF) {
+	if err != nil {
 		return nil, err
 	}
 	return &PacketBody{
